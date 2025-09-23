@@ -1,0 +1,143 @@
+
+/* User Sidebar Fixed (like Admin) */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  height: 100vh;
+  width: 240px;
+  background-color: #000;
+  padding: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1000;
+  transition: transform 0.3s ease;
+}
+
+.sidebar .sidebar-header {
+  padding: 20px;
+  text-align: center;
+}
+
+.sidebar nav ul {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+}
+
+.sidebar nav ul li {
+  padding: 12px 30px;
+  color: #ccc;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sidebar nav ul li.active,
+.sidebar nav ul li:hover {
+  background-color: #1a1a1a;
+  color: #fff;
+}
+
+.sidebar-link {
+  text-decoration: none;
+  color: inherit;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-link i {
+  margin-right: 10px;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  border-top: 1px solid #333;
+  width: 100%;
+}
+
+.sidebar-footer .sidebar-link {
+  padding: 12px 30px;
+}
+
+
+
+/* Main content */
+
+/* Mobile */
+@media (max-width: 767px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: 240px;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .sidebar-toggle {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1100;
+    background: #000;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .sidebar-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    color: white;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+  }
+}
+
+/* Push main content on desktop */
+.main-content {
+  margin-left: 240px; /* keeps sidebar fixed */
+}
+
+
+/* Mobile: Sidebar hidden by default */
+@media (max-width: 991px) {
+  .sidebar-wrapper {
+    left: -250px;
+    transition: left 0.3s ease;
+  }
+
+  .sidebar-wrapper.sidebar-open {
+    left: 0; /* Slide in */
+  }
+
+  .main-content {
+    margin-left: 0; /* No push on mobile */
+  }
+
+  .content-pushed {
+    margin-left: 250px; /* If you want push effect */
+  }
+
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    z-index: 900;
+  }
+}
