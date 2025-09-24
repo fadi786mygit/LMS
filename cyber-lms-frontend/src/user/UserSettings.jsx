@@ -19,7 +19,7 @@ export default function UserSettings() {
   const [profilePreview, setProfilePreview] = useState("../images/default-image.png");
   const [topbarProfile, setTopbarProfile] = useState("../images/default-image.png");
   const [selectedImage, setSelectedImage] = useState(null);
-  const [currentProfileImage, setCurrentProfileImage] = useState("default-image.png");
+  const [currentProfileImage, setCurrentProfileImage] = useState("");
   const [userFullName, setUserFullName] = useState("Loading...");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -60,23 +60,22 @@ export default function UserSettings() {
       setEmail(data.email || "");
       setUserFullName(data.fullName || "Student");
 
+      // ✅ FIX: Handle Cloudinary URL directly
       if (data.profileImage) {
-        // ✅ Use Cloudinary URL directly
         setCurrentProfileImage(data.profileImage);
         setProfilePreview(data.profileImage);
         setTopbarProfile(data.profileImage);
+      } else {
+        // Fallback to default image
+        const defaultImage = "../images/default-image.png";
+        setCurrentProfileImage("");
+        setProfilePreview(defaultImage);
+        setTopbarProfile(defaultImage);
       }
     } catch (err) {
       console.error("Load user error:", err);
       showToast("Failed to load user data.", "error");
     }
-  };
-
-
-  const updateProfileImages = (imgFile) => {
-    const url = `${baseUrl}/uploads/${imgFile}?t=${Date.now()}`;
-    setProfilePreview(url);
-    setTopbarProfile(url);
   };
 
   const handleImageChange = (e) => {
@@ -114,8 +113,9 @@ export default function UserSettings() {
 
     setLoading(true);
     try {
-      let profileImageFilename = currentProfileImage;
+      let profileImageUrl = currentProfileImage;
 
+      // ✅ FIX: Upload to Cloudinary if new image selected
       if (selectedImage) {
         const formData = new FormData();
         formData.append("profileImage", selectedImage);
@@ -126,14 +126,19 @@ export default function UserSettings() {
           body: formData,
         });
 
+        if (!uploadRes.ok) {
+          const errorData = await uploadRes.json();
+          throw new Error(errorData.message || "Image upload failed");
+        }
+
         const uploadData = await uploadRes.json();
-        profileImageFilename = uploadData.profileImage; // Now it’s full Cloudinary URL
+        profileImageUrl = uploadData.profileImage; // Full Cloudinary URL
       }
 
       const updateData = {
         fullName: fullName.trim(),
         email: email.trim(),
-        profileImage: profileImageFilename,
+        profileImage: profileImageUrl,
       };
 
       if (newPassword) {
@@ -151,7 +156,9 @@ export default function UserSettings() {
       });
 
       const result = await updateRes.json();
-      if (!updateRes.ok || !result.success) throw new Error(result.message || "Update failed");
+      if (!updateRes.ok || !result.success) {
+        throw new Error(result.message || "Update failed");
+      }
 
       showToast("Profile updated successfully!");
       setSelectedImage(null);
@@ -159,7 +166,15 @@ export default function UserSettings() {
       setNewPassword("");
       setConfirmPassword("");
       setPasswordErrors({});
-      loadUserData();
+      
+      // ✅ FIX: Update local state with new image URL
+      if (profileImageUrl) {
+        setCurrentProfileImage(profileImageUrl);
+        setProfilePreview(profileImageUrl);
+        setTopbarProfile(profileImageUrl);
+      }
+      
+      loadUserData(); // Reload to get latest data
     } catch (error) {
       console.error("Update error:", error);
       showToast(error.message || "Failed to update profile", "error");
@@ -210,6 +225,9 @@ export default function UserSettings() {
                 borderRadius: "50%",
                 border: "2px solid white",
               }}
+              onError={(e) => {
+                e.target.src = "../images/default-image.png";
+              }}
             />
           </div>
         </div>
@@ -229,6 +247,9 @@ export default function UserSettings() {
                 objectFit: "cover",
                 borderRadius: "50%",
                 border: "2px solid white",
+              }}
+              onError={(e) => {
+                e.target.src = "../images/default-image.png";
               }}
             />
           </div>
@@ -252,6 +273,9 @@ export default function UserSettings() {
                   alt="Profile Preview"
                   className="rounded-circle border"
                   style={{ width: "120px", height: "120px", objectFit: "cover" }}
+                  onError={(e) => {
+                    e.target.src = "../images/default-image.png";
+                  }}
                 />
                 <div className="mt-2">
                   <small className="text-muted">Click below to change photo</small>
@@ -350,7 +374,7 @@ export default function UserSettings() {
                 </div>
 
                 <div className="form-text text-muted mb-3">
-                  Note: Leave password fields blank if you don’t want to change your password.
+                  Note: Leave password fields blank if you don't want to change your password.
                 </div>
               </div>
 

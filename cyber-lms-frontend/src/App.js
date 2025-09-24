@@ -126,7 +126,7 @@ function App() {
           <Route path="/instructor/create-course" element={<InstructorCreateCourse />} />
           <Route path="/instructor/courses" element={<InstructorCourses />} />
           <Route path="/instructor/edit-course/:id" element={<EditCourse />} />
-          <Route path="/instructor/upload-videos" element={<InstructorUploadVideos />} />
+          {/* <Route path="/instructor/upload-videos" element={<InstructorUploadVideos />} /> */}
           <Route path='/instructor/quizzes' element={<Quizzes />} />
           <Route path='/instructor/instructor-settings' element={<InstructorSettings />} />
           <Route path='/instructor/courses/:courseId/quizzes/add' element={<AddQuiz />} />

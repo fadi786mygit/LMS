@@ -84,7 +84,16 @@ export default function UserCourses() {
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        setMyCourses(courseRes.data);
+        // ✅ FIX: Filter out null courses before setting state
+        const validCourses = courseRes.data.filter(course => course !== null);
+        setMyCourses(validCourses);
+
+        // ✅ Optional: Log any invalid courses for debugging
+        const invalidCourses = courseRes.data.filter(course => course === null);
+        if (invalidCourses.length > 0) {
+          console.warn(`Found ${invalidCourses.length} invalid course records`);
+        }
+
       } catch (err) {
         console.error("Error fetching courses:", err);
         showToast("Session expired. Please log in again.", "error");
@@ -97,6 +106,77 @@ export default function UserCourses() {
 
     fetchUserAndCourses();
   }, []);
+
+  // ✅ FIX: Add safe rendering for courses
+  const renderCourseCard = (course) => {
+    if (!course) {
+      return (
+        <div className="col-xl-4 col-md-6 col-sm-12 mb-4">
+          <div className="card bg-dark border text-white h-100">
+            <div className="card-body text-center">
+              <i className="fas fa-exclamation-triangle fa-2x text-warning mb-3"></i>
+              <h6>Course Not Available</h6>
+              <p className="small text-muted">This course may have been removed.</p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="col-xl-4 col-md-6 col-sm-12 mb-4" key={course._id}>
+        <div className="card bg-dark border text-white h-100">
+          <img
+            src={course.thumbnail || "/default-course.jpg"}
+            className="card-img-top"
+            alt={course.title}
+            style={{ height: "180px", objectFit: "cover" }}
+            onError={(e) => {
+              e.target.src = "/default-course.jpg";
+            }}
+          />
+          <div className="card-body d-flex flex-column">
+            <h5 className="card-title">{course.title || "Untitled Course"}</h5>
+            <p className="card-text small flex-grow-1">
+              {course.description ? `${course.description.substring(0, 100)}...` : "No description available."}
+            </p>
+            <div className="mt-auto">
+              <p className="mb-1">
+                <span className="badge bg-info">
+                  Level: {course.level || "Not specified"}
+                </span>
+              </p>
+              <p>
+                <span className="badge bg-success">
+                  Price: ${course.price || "0"}
+                </span>
+              </p>
+            </div>
+          </div>
+          <div className="card-footer text-center">
+            <div className="d-grid gap-2">
+              <button
+                className="btn btn-primary"
+                onClick={() =>
+                  window.location.href = `/user/courseVideo/${course._id}`
+                }
+              >
+                Go to Course
+              </button>
+              <button
+                className="btn btn-warning"
+                onClick={() =>
+                  window.location.href = `/user/courses/${course._id}/quizzes`
+                }
+              >
+                Take Quiz
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   if (loading) {
     return (
@@ -197,59 +277,7 @@ export default function UserCourses() {
             <div className="bg-dark border rounded p-3">
               {myCourses.length > 0 ? (
                 <div className="row">
-                  {myCourses.map((course) => (
-                    <div
-                      className="col-xl-4 col-md-6 col-sm-12 mb-4"
-                      key={course._id}
-                    >
-                      <div className="card bg-dark border text-white h-100">
-                        <img
-                          src={course.thumbnail || "/default-course.jpg"}
-                          className="card-img-top"
-                          alt={course.title}
-                          style={{ height: "180px", objectFit: "cover" }}
-                        />
-                        <div className="card-body d-flex flex-column">
-                          <h5 className="card-title">{course.title}</h5>
-                          <p className="card-text small flex-grow-1">
-                            {course.description.substring(0, 100)}...
-                          </p>
-                          <div className="mt-auto">
-                            <p className="mb-1">
-                              <span className="badge bg-info">
-                                Level: {course.level}
-                              </span>
-                            </p>
-                            <p>
-                              <span className="badge bg-success">
-                                Price: ${course.price}
-                              </span>
-                            </p>
-                          </div>
-                        </div>
-                        <div className="card-footer text-center">
-                          <div className="d-grid gap-2">
-                            <button
-                              className="btn btn-primary"
-                              onClick={() =>
-                                (window.location.href = `/user/courseVideo/${course._id}`)
-                              }
-                            >
-                              Go to Course
-                            </button>
-                            <button
-                              className="btn btn-warning"
-                              onClick={() =>
-                                (window.location.href = `/user/courses/${course._id}/quizzes`)
-                              }
-                            >
-                              Take Quiz
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                  {myCourses.map(renderCourseCard)}
                 </div>
               ) : (
                 <div className="text-center text-white py-5">

@@ -293,7 +293,11 @@ const getMyCourses = asyncHandler(async (req, res) => {
   const enrollments = await Enrollment.find({ user: req.user.id })
     .populate("course");
 
-  const courses = enrollments.map((enrollment) => enrollment.course);
+  // ✅ FIX: Filter out enrollments with null courses
+  const courses = enrollments
+    .map((enrollment) => enrollment.course)
+    .filter(course => course !== null);
+
   res.json(courses);
 });
 

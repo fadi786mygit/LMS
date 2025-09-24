@@ -324,9 +324,11 @@ exports.getUserEnrollments = async (req, res) => {
     }
 
     // Verify the requesting user has access to this data
-    if (req.user.id !== userId && req.user.role !== 'admin' && req.user.role !== 'student') {
+    // Verify the requesting user has access
+    if (req.user.id !== userId && req.user.role !== 'admin') {
       return res.status(403).json({ error: "Access denied" });
     }
+
 
     const enrollments = await Enrollment.find({ user: userId })
       .populate({

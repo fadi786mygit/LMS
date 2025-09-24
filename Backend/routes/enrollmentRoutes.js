@@ -15,8 +15,8 @@ const {
 // Enroll in a course
 router.post("/enroll", protect, enrollUser);
 
-// Get user's enrollments
-router.get("/user/:userId", protect, getUserEnrollments);
+
+
 
 router.post('/:courseId/complete-content', protect, markContentAsCompleted);
 
@@ -31,6 +31,8 @@ router.get("/:courseId/user-progress", protect, getUserCourseProgress);
 
 // Get progress of a specific course (existing)
 router.get("/:courseId/progress", protect, getCourseProgress);
+
+router.get("/user/:userId", protect, getUserEnrollments);
 
 
 

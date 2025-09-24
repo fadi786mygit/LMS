@@ -37,7 +37,7 @@ const VerifyCertificate = () => {
     }).showToast();
   };
 
-  // Load user profile
+  // Load user profile - FIXED VERSION
   const loadUserData = async () => {
     try {
       const res = await fetch(`${baseUrl}/api/users/get-users/${userId}`, {
@@ -49,12 +49,17 @@ const VerifyCertificate = () => {
       const data = await res.json();
       setUserData({ fullName: data.fullName, role: data.role });
 
+      // ✅ FIX: Use Cloudinary URL directly
       if (data.profileImage) {
-        const imgFile = data.profileImage.split("/").pop();
-        setTopbarProfile(`${baseUrl}/uploads/${imgFile}?t=${Date.now()}`);
+        setTopbarProfile(data.profileImage);
+      } else {
+        // Fallback to default image
+        setTopbarProfile("../images/default-image.png");
       }
     } catch (err) {
       console.error("Load user error:", err);
+      // Set default image on error
+      setTopbarProfile("../images/default-image.png");
     }
   };
 
@@ -112,6 +117,9 @@ const VerifyCertificate = () => {
                 border: "2px solid white",
                 objectFit: "cover",
               }}
+              onError={(e) => {
+                e.target.src = "../images/default-image.png";
+              }}
             />
           </div>
         </div>
@@ -130,6 +138,9 @@ const VerifyCertificate = () => {
                 borderRadius: "50%",
                 border: "2px solid white",
                 objectFit: "cover",
+              }}
+              onError={(e) => {
+                e.target.src = "../images/default-image.png";
               }}
             />
           </div>

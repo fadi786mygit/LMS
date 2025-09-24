@@ -36,7 +36,7 @@ const Certificates = () => {
     }).showToast();
   };
 
-  // Load user profile
+  // Load user profile - FIXED VERSION
   const loadUserData = async () => {
     try {
       const res = await fetch(`${baseUrl}/api/users/get-users/${userId}`, {
@@ -48,12 +48,17 @@ const Certificates = () => {
       setUserFullName(data.fullName || "Student");
       setUserData({ fullName: data.fullName, role: data.role });
 
+      // ✅ FIX: Use Cloudinary URL directly
       if (data.profileImage) {
-        const imgFile = data.profileImage.split("/").pop();
-        setTopbarProfile(`${baseUrl}/uploads/${imgFile}?t=${Date.now()}`);
+        setTopbarProfile(data.profileImage);
+      } else {
+        // Fallback to default image
+        setTopbarProfile("../images/default-image.png");
       }
     } catch (err) {
       console.error("Load user error:", err);
+      // Set default image on error
+      setTopbarProfile("../images/default-image.png");
     }
   };
 
@@ -176,7 +181,16 @@ const Certificates = () => {
             src={topbarProfile}
             alt="Profile"
             className="profile-image"
-            style={{ width: "40px", height: "40px", objectFit: "cover", borderRadius: "50%", border: "2px solid white" }}
+            style={{ 
+              width: "40px", 
+              height: "40px", 
+              objectFit: "cover", 
+              borderRadius: "50%", 
+              border: "2px solid white" 
+            }}
+            onError={(e) => {
+              e.target.src = "../images/default-image.png";
+            }}
           />
         </div>
       </div>
@@ -196,10 +210,25 @@ const Certificates = () => {
               src={topbarProfile}
               alt="Profile"
               className="profile-image"
-              style={{ width: "45px", height: "45px", objectFit: "cover", borderRadius: "50%", border: "2px solid white" }}
+              style={{ 
+                width: "45px", 
+                height: "45px", 
+                objectFit: "cover", 
+                borderRadius: "50%", 
+                border: "2px solid white" 
+              }}
+              onError={(e) => {
+                e.target.src = "../images/default-image.png";
+              }}
             />
           </div>
         </header>
+
+        {/* Mobile title */}
+        <div className="d-lg-none d-block mb-4 mt-3">
+          <h4 className="text-white">My Certificates</h4>
+          <p className="text-white mt-2">Welcome back, {userFullName}</p>
+        </div>
 
         {/* Certificates Section */}
         <div className="d-flex justify-content-center align-items-start">
@@ -214,6 +243,13 @@ const Certificates = () => {
               <div className="text-center py-5 text-white">
                 <i className="fas fa-trophy fa-3x text-secondary mb-3"></i>
                 <h5 className="mt-3">No courses enrolled</h5>
+                <p className="text-muted">Enroll in courses and complete them to earn certificates!</p>
+                <button 
+                  className="btn btn-primary mt-2"
+                  onClick={() => window.location.href = "/"}
+                >
+                  Browse Courses
+                </button>
               </div>
             ) : (
               <div className="card-body">
@@ -233,9 +269,9 @@ const Certificates = () => {
                       {certificates.map((cert, index) => (
                         <tr key={cert._id || index}>
                           <td>{index + 1}</td>
-                          <td className="fw-bold">{cert.course?.title}</td>
+                          <td className="fw-bold">{cert.course?.title || "Unknown Course"}</td>
                           <td className="text-truncate d-none d-md-table-cell" style={{ maxWidth: "250px" }}>
-                            {cert.course?.description}
+                            {cert.course?.description || "No description available"}
                           </td>
                           <td className="d-none d-lg-table-cell">
                             {cert.certificateId ? (
@@ -264,7 +300,9 @@ const Certificates = () => {
                                 <i className="fas fa-award me-1"></i> Generate
                               </button>
                             ) : (
-                              <span className="badge bg-secondary">Incomplete</span>
+                              <span className="badge bg-secondary">
+                                Progress: {cert.progress || 0}%
+                              </span>
                             )}
                           </td>
                         </tr>

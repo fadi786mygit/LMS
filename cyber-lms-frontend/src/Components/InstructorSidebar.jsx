@@ -103,11 +103,11 @@ export default function InstructorSidebar() {
               </div>
             </li>
 
-              <li onClick={() => handleLiClick("/instructor/upload-videos")}>
+              {/* <li onClick={() => handleLiClick("/instructor/upload-videos")}>
               <div className="sidebar-link">
                 <i className="fas fa-video"></i> Upload Videos
               </div>
-            </li>
+            </li> */}
             <li onClick={() => handleLiClick("/instructor/certificates")}>
               <div className="sidebar-link">
                 <i className="fas fa-certificate"></i> Issue Certificates

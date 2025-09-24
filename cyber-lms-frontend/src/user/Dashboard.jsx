@@ -117,7 +117,6 @@ export default function Dashboard() {
             `${baseUrl}/api/enrollments/user/${userId}`
           );
           const enrolledCourses = await coursesRes.json();
-          console.log("Enrolled courses:", enrolledCourses);
           setCourses(enrolledCourses);
         } catch (error) {
           console.error("Error fetching enrollments:", error);
@@ -227,27 +226,34 @@ export default function Dashboard() {
               {courses.length === 0 ? (
                 <p className="mb-0">No enrolled courses yet.</p>
               ) : (
-                courses.map((enrollment, index) => (
-                  <div key={index} className="mb-3">
-                    <p className="mb-1 fw-bold">{enrollment.course.title}</p>
-                    <div className="d-flex justify-content-between align-items-center mb-2">
-                      <small>{enrollment.progress}% completed</small>
-                      <a
-                        href={`/user/courseVideo/${enrollment.course._id}`}
-                        className="btn btn-sm btn-primary"
-                      >
-                        Continue
-                      </a>
+                courses.map((enrollment, index) =>
+                  enrollment.course ? (
+                    <div key={index} className="mb-3">
+                      <p className="mb-1 fw-bold">{enrollment.course.title}</p>
+                      <div className="d-flex justify-content-between align-items-center mb-2">
+                        <small>{enrollment.progress}% completed</small>
+                        <a
+                          href={`/user/courseVideo/${enrollment.course._id}`}
+                          className="btn btn-sm btn-primary"
+                        >
+                          Continue
+                        </a>
+                      </div>
+                      <div className="progress">
+                        <div
+                          className="progress-bar bg-primary"
+                          style={{ width: `${enrollment.progress}%` }}
+                        ></div>
+                      </div>
                     </div>
-                    <div className="progress">
-                      <div
-                        className="progress-bar bg-primary"
-                        style={{ width: `${enrollment.progress}%` }}
-                      ></div>
+                  ) : (
+                    <div key={index} className="mb-3 text-white">
+                      <p className="mb-1">Invalid course data</p>
                     </div>
-                  </div>
-                ))
+                  )
+                )
               )}
+
             </div>
           </div>
 
