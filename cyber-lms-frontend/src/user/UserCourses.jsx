@@ -71,11 +71,11 @@ export default function UserCourses() {
 
         setUserData({ fullName: user.fullName, role: user.role });
 
+        // ✅ FIX: Use Cloudinary URL directly
         if (user.profileImage) {
-          const imgFile = user.profileImage.split("/").pop();
-          setTopbarProfile(
-            `${baseUrl}/uploads/${imgFile}?t=${Date.now()}`
-          );
+          setTopbarProfile(user.profileImage);
+        } else {
+          setTopbarProfile("../images/default-image.png");
         }
 
         // Fetch enrolled courses
@@ -222,6 +222,9 @@ export default function UserCourses() {
               borderRadius: "50%",
               border: "2px solid white",
             }}
+            onError={(e) => {
+              e.target.src = "../images/default-image.png";
+            }}
           />
         </div>
       </div>
@@ -260,6 +263,9 @@ export default function UserCourses() {
                 objectFit: "cover",
                 borderRadius: "50%",
                 border: "2px solid white",
+              }}
+              onError={(e) => {
+                e.target.src = "../images/default-image.png";
               }}
             />
           </div>
